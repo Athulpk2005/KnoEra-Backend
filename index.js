@@ -41,10 +41,12 @@ app.use(helmet({
 // Monitoring
 app.use(performanceMonitor);
 
+// Trust Proxy (Required for Render/Proxies to work with rate limiting)
+app.set('trust proxy', 1);
+
 // Logging
 if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined'));
-  app.set('trust proxy', 1);
 } else {
   app.use(morgan('dev'));
 }
