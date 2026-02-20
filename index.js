@@ -114,7 +114,11 @@ app.use(
 // Body Parsers & Sanitization
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
-app.use(mongoSanitize()); // Prevent NoSQL injection
+app.use(mongoSanitize({
+  onSanitize: ({ req, key }) => {
+    console.warn(`This request[${key}] is sanitized`, req ? req[key] : '');
+  },
+})); // Prevent NoSQL injection
 
 // Uploads Folder (AUTO CREATE)
 const uploadsPath = path.join(__dirname, "uploads");
