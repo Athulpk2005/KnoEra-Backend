@@ -135,6 +135,16 @@ app.use(
   })
 );
 
+// Basic Route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Welcome to KnoEra Ai API",
+    version: "1.0.0",
+    status: "Healthy"
+  });
+});
+
 // API Routes
 app.get('/api/test', (req, res) => {
   res.json({
