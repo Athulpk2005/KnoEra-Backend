@@ -91,6 +91,7 @@ app.use(limiter);
 // CORS (DEV + PROD SAFE)
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  "https://knoera-frontend1.vercel.app",
   "http://localhost:5173",
   "http://localhost:8081", // Expo Web
   "http://192.168.1.70:8081", // Expo Go
