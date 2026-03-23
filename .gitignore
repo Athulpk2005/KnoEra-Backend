@@ -1,0 +1,14 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Main dependencies
+node_modules
+dist
+dist-ssr
+build/
+
+# Other
+*.log
+.DS_Store

@@ -2,13 +2,12 @@ import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const defaultGenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 if (!process.env.GEMINI_API_KEY) {
-    console.error('FATAL ERROR: GEMINI_API_KEY is not set in the environment variables')
-    process.exit(1);
+    console.warn('WARNING: GEMINI_API_KEY is not set in the environment variables. User-provided keys will be required.');
 } else {
-    console.log(`GEMINI_API_KEY found: ${process.env.GEMINI_API_KEY.substring(0, 4)}...`);
+    console.log(`System GEMINI_API_KEY found: ${process.env.GEMINI_API_KEY.substring(0, 4)}...`);
 }
 
 /**
@@ -16,9 +15,12 @@ if (!process.env.GEMINI_API_KEY) {
  * @param {string} prompt - The prompt to send
  * @param {string} modelName - Model identifier
  * @param {number} maxRetries - Max number of retries
+ * @param {string} apiKey - Optional user-provided API key
  */
-const generateWithRetry = async (prompt, modelName = "gemini-flash-latest", maxRetries = 3) => {
+const generateWithRetry = async (prompt, modelName = "gemini-flash-latest", maxRetries = 3, apiKey = null) => {
     let lastError;
+    const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : defaultGenAI;
+
     for (let i = 0; i < maxRetries; i++) {
         try {
             const model = genAI.getGenerativeModel({ model: modelName });
@@ -48,10 +50,11 @@ const generateWithRetry = async (prompt, modelName = "gemini-flash-latest", maxR
  * Generate flashcards from text
  * @param {string} text -Document text
  * @param {number} count -Number of flashcards to generate
+ * @param {string} apiKey -Optional API key
  * @returns {Promise<Array<{question:string,answer:string, difficulty:string}>>}
  */
 
-export const generateFlashcards = async (text, count = 10) => {
+export const generateFlashcards = async (text, count = 10, apiKey = null) => {
     if (!text || text.trim().length === 0) {
         throw new Error('Document content is empty. Cannot generate flashcards.');
     }
@@ -68,7 +71,7 @@ export const generateFlashcards = async (text, count = 10) => {
     ${text.substring(0, 15000)}`;
 
     try {
-        const generatedText = await generateWithRetry(prompt);
+        const generatedText = await generateWithRetry(prompt, "gemini-flash-latest", 3, apiKey);
 
         //Parse the response
         const flashcard = [];
@@ -111,10 +114,11 @@ export const generateFlashcards = async (text, count = 10) => {
  * Generate quiz questions
  * @param {string} text -Document text
  * @param {number} numQuestions -Number of questions 
+ * @param {string} apiKey -Optional API key
  * @returns {Promise<Array<{question:string, options: Array, correctAnswer: string, explanation: string. difficulty: string}>>}
  */
 
-export const generateQuiz = async (text, numQuestions = 5) => {
+export const generateQuiz = async (text, numQuestions = 5, apiKey = null) => {
     if (!text || text.trim().length === 0) {
         throw new Error('Document content is empty. Cannot generate quiz.');
     }
@@ -135,7 +139,7 @@ export const generateQuiz = async (text, numQuestions = 5) => {
     ${text.substring(0, 15000)}`;
 
     try {
-        const generatedText = await generateWithRetry(prompt);
+        const generatedText = await generateWithRetry(prompt, "gemini-flash-latest", 3, apiKey);
 
         //Parse the response
         const questions = [];
@@ -181,10 +185,11 @@ export const generateQuiz = async (text, numQuestions = 5) => {
 /**
  * Generate document summary
  * @param {string} text -Document text
+ * @param {string} apiKey -Optional API key
  * @returns {Promise<string>}
  */
 
-export const generateSummary = async (text) => {
+export const generateSummary = async (text, apiKey = null) => {
     if (!text || text.trim().length === 0) {
         throw new Error('Document content is empty. Cannot generate summary.');
     }
@@ -201,7 +206,7 @@ export const generateSummary = async (text) => {
     ${text.substring(0, 30000)}`;
 
     try {
-        const generatedText = await generateWithRetry(prompt);
+        const generatedText = await generateWithRetry(prompt, "gemini-flash-latest", 3, apiKey);
         return generatedText;
     } catch (error) {
         console.error('Gemini API Error (Summary):', error);
@@ -216,10 +221,11 @@ export const generateSummary = async (text) => {
  * Chat with document context
  * @param {string} question -User question
  * @param {Array<Object>} chunks -Relevant document chunks
+ * @param {string} apiKey -Optional API key
  * @returns {Promise<string>}
 */
 
-export const generateResponse = async (question, chunks) => {
+export const generateResponse = async (question, chunks, apiKey = null) => {
     const context = chunks.map((c, i) => `[Chunk ${i + 1}]\n${c.content}`).join('\n\n');
     const prompt = `Based on the following context from a document, analyze the context and answer the user's question. 
     
@@ -238,7 +244,7 @@ export const generateResponse = async (question, chunks) => {
     Answer: `;
 
     try {
-        const generatedText = await generateWithRetry(prompt);
+        const generatedText = await generateWithRetry(prompt, "gemini-flash-latest", 3, apiKey);
         return generatedText;
     } catch (error) {
         console.error('Gemini API Error (Chat):', error.message);
@@ -253,9 +259,10 @@ export const generateResponse = async (question, chunks) => {
  * Explain a specific concept
  * @param {string} concept -Concept to explain
  * @param {string} context -Relevant context
+ * @param {string} apiKey -Optional API key
  * @returns {Promise<string>}
  */
-export const explainConcept = async (concept, context) => {
+export const explainConcept = async (concept, context, apiKey = null) => {
 
     const prompt = `Explain the concept of "${concept}" based on the following context.
     
@@ -270,7 +277,7 @@ export const explainConcept = async (concept, context) => {
     ${context.substring(0, 10000)}`;
 
     try {
-        const generatedText = await generateWithRetry(prompt);
+        const generatedText = await generateWithRetry(prompt, "gemini-flash-latest", 3, apiKey);
         return generatedText;
     } catch (error) {
         console.error('Gemini API Error (Explain):', error);

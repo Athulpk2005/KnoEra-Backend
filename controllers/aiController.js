@@ -73,9 +73,11 @@ export const generateFlashcards = async (req, res, next) => {
         }
 
         //Generate flashcards using Gemini
+        const apiKey = req.headers['x-api-key'];
         const cards = await geminiService.generateFlashcards(
             textToAnalyze,
-            parseInt(count)
+            parseInt(count),
+            apiKey
         );
 
         //Save to database
@@ -177,9 +179,11 @@ export const generateQuiz = async (req, res, next) => {
         }
 
         //Generate quiz using Gemini
+        const apiKey = req.headers['x-api-key'];
         const questions = await geminiService.generateQuiz(
             textToAnalyze,
-            parseInt(numQuestions)
+            parseInt(numQuestions),
+            apiKey
         );
 
         //Save to database
@@ -272,7 +276,8 @@ export const generateSummary = async (req, res, next) => {
         }
 
         //Generate summary using Gemini
-        const summary = await geminiService.generateSummary(textToSummarize);
+        const apiKey = req.headers['x-api-key'];
+        const summary = await geminiService.generateSummary(textToSummarize, apiKey);
 
         res.status(200).json({
             success: true,
@@ -383,7 +388,8 @@ export const chat = async (req, res, next) => {
         }
 
         //Generate response using Gemini
-        const answer = await geminiService.generateResponse(question, relevantChunks);
+        const apiKey = req.headers['x-api-key'];
+        const answer = await geminiService.generateResponse(question, relevantChunks, apiKey);
 
         //Save chat history
         chatHistory.messages.push({
@@ -471,7 +477,8 @@ export const explainConcept = async (req, res, next) => {
         const context = relevantChunks.map(c => c.content).join('\n\n');
 
         //Generate explanation using Gemini
-        const explanation = await geminiService.explainConcept(concept, context);
+        const apiKey = req.headers['x-api-key'];
+        const explanation = await geminiService.explainConcept(concept, context, apiKey);
 
         res.status(200).json({
             success: true,
