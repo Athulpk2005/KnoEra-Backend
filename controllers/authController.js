@@ -40,6 +40,7 @@ export const register = async (req, res, next) => {
                 username: user.username,
                 email: user.email,
                 profileImage: user.profileImage,
+                geminiApiKey: user.geminiApiKey,
                 createdAt: user.createdAt,
             },
             token,
@@ -92,6 +93,7 @@ export const login = async (req, res, next) => {
                 username: user.username,
                 email: user.email,
                 profileImage: user.profileImage,
+                geminiApiKey: user.geminiApiKey,
             },
             token,
             message: "User logged in successfully",
@@ -115,6 +117,7 @@ export const getProfile = async (req, res, next) => {
                 username: user.username,
                 email: user.email,
                 profileImage: user.profileImage,
+                geminiApiKey: user.geminiApiKey,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt,
             },
@@ -132,7 +135,7 @@ export const getProfile = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
     try {
 
-        const { username, email, profileImage } = req.body;
+        const { username, email, profileImage, geminiApiKey } = req.body;
         const user = await User.findById(req.user._id);
         if (username) {
             user.username = username;
@@ -143,6 +146,9 @@ export const updateProfile = async (req, res, next) => {
         if (profileImage) {
             user.profileImage = profileImage;
         }
+        if (geminiApiKey !== undefined) {
+            user.geminiApiKey = geminiApiKey;
+        }
         await user.save();
         res.status(200).json({
             success: true,
@@ -151,6 +157,7 @@ export const updateProfile = async (req, res, next) => {
                 username: user.username,
                 email: user.email,
                 profileImage: user.profileImage,
+                geminiApiKey: user.geminiApiKey,
             },
             message: "User profile updated successfully",
         });

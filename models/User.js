@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
+    geminiApiKey: {
+        type: String,
+        default: null,
+    },
     lastClearedActivityAt: {
         type: Date,
         default: null
@@ -69,6 +73,7 @@ userSchema.methods.toProfileJSON = function () {
         username: this.username,
         email: this.email,
         profileImage: this.profileImage,
+        geminiApiKey: this.geminiApiKey,
         createdAt: this.createdAt,
         lastClearedActivityAt: this.lastClearedActivityAt
     };

@@ -73,7 +73,7 @@ export const generateFlashcards = async (req, res, next) => {
         }
 
         //Generate flashcards using Gemini
-        const apiKey = req.headers['x-api-key'];
+        const apiKey = req.user.geminiApiKey || req.headers['x-api-key'];
         const cards = await geminiService.generateFlashcards(
             textToAnalyze,
             parseInt(count),
@@ -179,7 +179,7 @@ export const generateQuiz = async (req, res, next) => {
         }
 
         //Generate quiz using Gemini
-        const apiKey = req.headers['x-api-key'];
+        const apiKey = req.user.geminiApiKey || req.headers['x-api-key'];
         const questions = await geminiService.generateQuiz(
             textToAnalyze,
             parseInt(numQuestions),
@@ -276,7 +276,7 @@ export const generateSummary = async (req, res, next) => {
         }
 
         //Generate summary using Gemini
-        const apiKey = req.headers['x-api-key'];
+        const apiKey = req.user.geminiApiKey || req.headers['x-api-key'];
         const summary = await geminiService.generateSummary(textToSummarize, apiKey);
 
         res.status(200).json({
@@ -388,7 +388,7 @@ export const chat = async (req, res, next) => {
         }
 
         //Generate response using Gemini
-        const apiKey = req.headers['x-api-key'];
+        const apiKey = req.user.geminiApiKey || req.headers['x-api-key'];
         const answer = await geminiService.generateResponse(question, relevantChunks, apiKey);
 
         //Save chat history
@@ -477,7 +477,7 @@ export const explainConcept = async (req, res, next) => {
         const context = relevantChunks.map(c => c.content).join('\n\n');
 
         //Generate explanation using Gemini
-        const apiKey = req.headers['x-api-key'];
+        const apiKey = req.user.geminiApiKey || req.headers['x-api-key'];
         const explanation = await geminiService.explainConcept(concept, context, apiKey);
 
         res.status(200).json({
